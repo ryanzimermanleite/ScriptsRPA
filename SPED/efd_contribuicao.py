@@ -65,7 +65,7 @@ def localizaPastaArquivosTxt():
         time.sleep(0.5)
         _click_img('Setor_SPED.png', conf=0.9, clicks=2)
         time.sleep(0.5)
-        _click_img('EFD_Contribuicoes.png', pasta='imgs_contribuições', conf=0.9, clicks=2)
+        _click_img('EFD_Contribuicoes.png', pasta='imgs_contri', conf=0.9, clicks=2)
         time.sleep(0.5)
         _click_img('EFD_Pasta_Arquivos.png', conf=0.9, clicks=2)
     p.press('enter')
@@ -74,13 +74,13 @@ def verificaMsgImportacao():
     while not _find_img('importacao_concluida.png', pasta='imgs', conf=0.9):
         time.sleep(0.5)
     p.press('enter')
-    while not _find_img('escrituracao_pronta_assinatura_contribuições.png', pasta='imgs_contribuições', conf=0.9):
+    while not _find_img('escrituracao_pronta_assinatura_contri.png', pasta='imgs_contri', conf=0.9):
         time.sleep(0.5)
         if _find_img('atualizacao_tabela.png', pasta='imgs', conf=0.9):
             p.press('enter')
-        if _find_img('arquivo_contem_avisos_contribuições.png', pasta='imgs_contribuições', conf=0.9):
+        if _find_img('arquivo_contem_avisos_contri.png', pasta='imgs_contri', conf=0.9):
             p.press('enter')
-        if _find_img('arquivo_validado_sucesso_contribuições.png', pasta='imgs_contribuições', conf=0.9):
+        if _find_img('arquivo_validado_sucesso_contri.png', pasta='imgs_contri', conf=0.9):
             p.press('enter')
     p.press('enter')
     while not _find_img('resultado_validacao.png', pasta='imgs', conf=0.9):
@@ -140,7 +140,7 @@ def localizaPastaRecibos():
         time.sleep(0.5)
         _click_img('Setor_SPED.png', conf=0.9, clicks=2)
         time.sleep(0.5)
-        _click_img('EFD_Contribuicoes.png', pasta='imgs_contribuições', conf=0.9, clicks=2)
+        _click_img('EFD_Contribuicoes.png', pasta='imgs_contri', conf=0.9, clicks=2)
         time.sleep(0.5)
         _click_img('EFD_Pasta_Recibo.png', conf=0.9, clicks=2)
     p.press('enter')
