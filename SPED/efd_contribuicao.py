@@ -34,8 +34,10 @@ def startImportacaoAssinaturaTransmissao(window):
         try:
             abreJanelaImportacao(arquivo)
             verificaMsgImportacao()
+
             abreJanelaAssinatura()
             verificaMsgAssinatura()
+
             abreJanelaTransmitir()
             verificaMsgTransmitir(arquivo)
         
@@ -63,22 +65,22 @@ def localizaPastaArquivosTxt():
         time.sleep(0.5)
         _click_img('Setor_SPED.png', conf=0.9, clicks=2)
         time.sleep(0.5)
-        _click_img('EFD_Contribuicoes.png', conf=0.9, clicks=2)
+        _click_img('EFD_Contribuicoes.png', pasta='imgs_contribuições', conf=0.9, clicks=2)
         time.sleep(0.5)
-        _click_img('EFD_Pasta.png', conf=0.9, clicks=2)
+        _click_img('EFD_Pasta_Arquivos.png', conf=0.9, clicks=2)
     p.press('enter')
 
 def verificaMsgImportacao():
     while not _find_img('importacao_concluida.png', pasta='imgs', conf=0.9):
         time.sleep(0.5)
     p.press('enter')
-    while not _find_img('escrituracao_pronta_assinatura.png', pasta='imgs', conf=0.9):
+    while not _find_img('escrituracao_pronta_assinatura_contribuições.png', pasta='imgs_contribuições', conf=0.9):
         time.sleep(0.5)
         if _find_img('atualizacao_tabela.png', pasta='imgs', conf=0.9):
             p.press('enter')
-        if _find_img('arquivo_contem_avisos.png', pasta='imgs', conf=0.9):
+        if _find_img('arquivo_contem_avisos_contribuições.png', pasta='imgs_contribuições', conf=0.9):
             p.press('enter')
-        if _find_img('arquivo_validado_sucesso.png', pasta='imgs', conf=0.9):
+        if _find_img('arquivo_validado_sucesso_contribuições.png', pasta='imgs_contribuições', conf=0.9):
             p.press('enter')
     p.press('enter')
     while not _find_img('resultado_validacao.png', pasta='imgs', conf=0.9):
@@ -114,12 +116,12 @@ def abreJanelaTransmitir():
     time.sleep(0.5)
     p.press('enter')
     time.sleep(0.5)
-
+ 
 def verificaMsgTransmitir(arquivo):
     while not _find_img('aviso3.png', pasta='imgs', conf=0.9):
         time.sleep(0.5)
     p.press('enter')
-    while not _find_img('recibo.png', pasta='imgs', conf=0.9):
+    while not _find_img('recibo_transmissao.png', pasta='imgs', conf=0.9):
         time.sleep(0.5)
     p.press('enter')
     while not _find_img('salvar.png', pasta='imgs', conf=0.9):
@@ -130,15 +132,15 @@ def verificaMsgTransmitir(arquivo):
     localizaPastaRecibos()
 
 def localizaPastaRecibos():
-    while not _find_img('efd_recibo2.png', pasta='imgs', conf=0.9):
+    while not _find_img('EFD_Pasta_Recibo_Selecionada.png', pasta='imgs', conf=0.9):
         time.sleep(0.5)
         _click_img('este_computador.png', conf=0.9)
         time.sleep(0.5)
         _click_img('unidade_de_rede_DCA.png', conf=0.9, clicks=2)
         time.sleep(0.5)
-        _click_img('SETOR_EFD.png', conf=0.9, clicks=2)
+        _click_img('Setor_SPED.png', conf=0.9, clicks=2)
         time.sleep(0.5)
-        _click_img('EFD_Contribuicoes.png', conf=0.9, clicks=2)
+        _click_img('EFD_Contribuicoes.png', pasta='imgs_contribuições', conf=0.9, clicks=2)
         time.sleep(0.5)
         _click_img('EFD_Pasta_Recibo.png', conf=0.9, clicks=2)
     p.press('enter')
