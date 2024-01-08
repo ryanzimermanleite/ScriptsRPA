@@ -149,18 +149,25 @@ def localizaPastaRecibos():
 
 def moveArquivoTransmitidos(arquivo):
     x = arquivo.split(".")
-
+    #
+    
     # GUARDA O NOME DOS ARQUIVOS USADOS NA VARIAVAEL .txt E O .REC
     pasta_arquivo_REC = 'V:\!Setor SPED\EFD Fiscal\EFD Arquivos' + '\\' + x[0] + '.REC'
     pasta_arquivo_TXT = 'V:\!Setor SPED\EFD Fiscal\EFD Arquivos' + '\\' + x[0] + '.txt'
 
-    # GUARDA NA VARIAVEL O CAMINHO PARA ONDE OS ARQUIVOS SERÃO MOVIDOS
-    pasta_transmitidos_REC = 'V:\!Setor SPED\EFD Fiscal\EFD Transmitidos' + '\\' + x[0] + '.REC'
-    pasta_transmitidos_TXT = 'V:\!Setor SPED\EFD Fiscal\EFD Transmitidos' + '\\' + x[0] + '.txt'
+    with open(pasta_arquivo_TXT, 'r', errors="ignore") as f:
+        dados = f.read()
+    dados_arquivo = re.findall(r'\|([^|]*)', dados)
+
+    dataCompetencia = dados_arquivo[4]
+    mesCompetencia = dataCompetencia[2:4]
+    anoCompetencia = dataCompetencia[4:]
+    pastaAnoMes_REC = 'V:\!Setor SPED\EFD Fiscal\EFD Transmitidos\\' + anoCompetencia + '\\' + mesCompetencia + '\\' + x[0] + '.REC'
+    pastaAnoMes_TXT = 'V:\!Setor SPED\EFD Fiscal\EFD Transmitidos\\' + anoCompetencia + '\\' + mesCompetencia + '\\' + x[0] + '.txt'
 
     # MOVE O ARQUIVO TXT E O REC QUE GEROU PARA PASTA DE TRANSMITIDOS
-    os.rename(pasta_arquivo_REC, pasta_transmitidos_REC)
-    os.rename(pasta_arquivo_TXT, pasta_transmitidos_TXT)
+    os.rename(pasta_arquivo_REC, pastaAnoMes_REC)
+    os.rename(pasta_arquivo_TXT, pastaAnoMes_TXT)
 
 def geraRelatorioExcel(arquivo):
     caminhoNomeArquivo = diretorioArquivosTxt + '\\' + arquivo

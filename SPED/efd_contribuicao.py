@@ -6,7 +6,7 @@
 # Data:     22/11/2023                                                  #
 # ----------------------------------------------------------------------#
 import time, datetime, os, re, pyautogui as p
-import pyperclip
+import pyperclip, shutil
 from sys import path
 from datetime import datetime
 from pathlib import Path
@@ -15,6 +15,7 @@ from pyautogui_comum import _find_img, _click_img, _wait_img
 from comum_comum import _barra_de_status
 
 diretorioArquivosTxt = 'V:\!Setor SPED\EFD Contribuições\EFD Arquivos'
+dir_txt = Path('V:\!Setor SPED\EFD Contribuições\EFD Arquivos')
 e_dir = Path('V:\!Setor SPED\EFD Contribuições\EFD Relatorios')
 
 @_barra_de_status
@@ -149,18 +150,23 @@ def localizaPastaRecibos():
 
 def moveArquivoTransmitidos(arquivo):
     x = arquivo.split(".")
-
     # GUARDA O NOME DOS ARQUIVOS USADOS NA VARIAVAEL .txt E O .REC
     pasta_arquivo_REC = 'V:\!Setor SPED\EFD Contribuições\EFD Arquivos' + '\\' + x[0] + '.REC'
     pasta_arquivo_TXT = 'V:\!Setor SPED\EFD Contribuições\EFD Arquivos' + '\\' + x[0] + '.txt'
 
-    # GUARDA NA VARIAVEL O CAMINHO PARA ONDE OS ARQUIVOS SERÃO MOVIDOS
-    pasta_transmitidos_REC = 'V:\!Setor SPED\EFD Contribuições\EFD Transmitidos' + '\\' + x[0] + '.REC'
-    pasta_transmitidos_TXT = 'V:\!Setor SPED\EFD Contribuições\EFD Transmitidos' + '\\' + x[0] + '.txt'
+    with open(pasta_arquivo_TXT, 'r', errors="ignore") as f:
+        dados = f.read()
+    dados_arquivo = re.findall(r'\|([^|]*)', dados)
+
+    dataCompetencia = dados_arquivo[6]
+    mesCompetencia = dataCompetencia[2:4]
+    anoCompetencia = dataCompetencia[4:]
+    pastaAnoMes_REC = 'V:\!Setor SPED\EFD Contribuições\EFD Transmitidos\\' + anoCompetencia + '\\' + mesCompetencia + '\\' + x[0] + '.REC'
+    pastaAnoMes_TXT = 'V:\!Setor SPED\EFD Contribuições\EFD Transmitidos\\' + anoCompetencia + '\\' + mesCompetencia + '\\' + x[0] + '.txt'
 
     # MOVE O ARQUIVO TXT E O REC QUE GEROU PARA PASTA DE TRANSMITIDOS
-    os.rename(pasta_arquivo_REC, pasta_transmitidos_REC)
-    os.rename(pasta_arquivo_TXT, pasta_transmitidos_TXT)
+    os.rename(pasta_arquivo_REC, pastaAnoMes_REC)
+    os.rename(pasta_arquivo_TXT, pastaAnoMes_TXT)
 
 def geraRelatorioExcel(arquivo):
     caminhoNomeArquivo = diretorioArquivosTxt + '\\' + arquivo
