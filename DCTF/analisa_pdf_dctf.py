@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
+import shutil
+
 import fitz, re, os
 from sys import path
 path.append(r'..\..\_comum')
 from comum_comum import ask_for_dir
 from comum_comum import _escreve_relatorio_csv, _escreve_header_csv
+pastaOrigem = 'V:\Setor Robô\Scripts Python\DCTF Mensal\Analisa Declaração DCTF Mensal\ignore'
+pastaComMovimento = 'V:\Setor Robô\Scripts Python\DCTF Mensal\Analisa Declaração DCTF Mensal\execução\DCTF Com Movimento'
+pastaSemMovimento = 'V:\Setor Robô\Scripts Python\DCTF Mensal\Analisa Declaração DCTF Mensal\execução\DCTF Sem Movimento'
 
 def run():
     documentos = ask_for_dir()
@@ -39,12 +44,15 @@ def run():
                     soma_creditos_vinculados = soma_creditos_vinculados.group(2)
                     saldo_pagar_debito = saldo_pagar_debito.group(2)
 
-                    _escreve_relatorio_csv(f'{cnpj};{arq_nome};{denominacao};{debito_apurado};{soma_creditos_vinculados};{saldo_pagar_debito}', nome='Relatorio Analise DCTF')
-
-            if achou == 'não':
-                status = 'Sem Movimento'
-                _escreve_relatorio_csv(f'{cnpj};{arq_nome};{status}', nome='DCTF Sem Movimento')
+                    _escreve_relatorio_csv(f'{cnpj};{denominacao};{debito_apurado};{soma_creditos_vinculados};{saldo_pagar_debito}', nome='DCTF Com Movimento')
+        cnpj_formatado = cnpj.replace('.', '').replace('/', '').replace('-', '').replace(' ', '')
+        if achou == 'não':
+            status = 'Sem Movimento'
+            _escreve_relatorio_csv(f'{cnpj};{status}', nome='DCTF Sem Movimento')
+            shutil.move(pastaOrigem + '\\' + arq_nome, pastaSemMovimento + '\\' + cnpj_formatado + '.pdf')
+        else:
+            shutil.move(pastaOrigem + '\\' + arq_nome, pastaComMovimento + '\\' + cnpj_formatado + '.pdf')
 
 if __name__ == '__main__':
     run()
-    _escreve_header_csv('CNPJ;ARQUIVO;DENOMINAÇÃO;DÉBITO APURADO;SOMA DOS CRÉDITOS VINCULADOS;SALDO A PAGAR DO DÉBITO', nome='Relatorio Analise DCTF')
+    _escreve_header_csv('CNPJ;DENOMINAÇÃO;DÉBITO APURADO;SOMA DOS CRÉDITOS VINCULADOS;SALDO A PAGAR DO DÉBITO', nome='DCTF Com Movimento')
