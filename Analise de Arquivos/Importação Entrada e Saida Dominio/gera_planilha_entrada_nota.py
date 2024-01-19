@@ -6,14 +6,19 @@ import pandas as pd
 import os
 e_dir = Path('T:\# Projeto Robô\Carolina')
 
+
 if __name__ == '__main__':
+
     def exibe_opcoes():
         names = ['Banco Itaú - 21', 'Banco do Brasil - 19', 'Banco Daycoval - 5042']
         return sg.Frame("", [[
-            sg.Radio("ENTRADA", "entrada_saida", key="-entrada-", font=("Helvetica", 10), default=True),
-            sg.Radio("SAÍDA", "entrada_saida", key="-saida-", font=("Helvetica", 10)),
-            sg.Combo(names, font=("Helvetica", 10), expand_x=True, enable_events=True, readonly=False, key='-COMBO-')
+            sg.Radio("ENTRADA", "entrada_saida", enable_events=True, key="-entrada-", font=("Helvetica", 10), default=True),
+            sg.Radio("SAÍDA", "entrada_saida",enable_events=True,  key="-saida-", font=("Helvetica", 10)),
+            sg.Combo(names, font=("Helvetica", 10), expand_x=True, enable_events=True, readonly=False, key='-COMBO-'),
+
+            sg.Checkbox("Notas de Serviços", key="-CHECKBOX-", enable_events=True)
         ]], pad=(5, 3), border_width=0)
+
     def seleciona_excel_cliente():
         return sg.Frame("", [[
             sg.FileBrowse('Pesquisar', button_color='grey80', key='-Abrir-', file_types=(('Planilhas Excel', '*.xlsx *.xls'),)),
@@ -44,8 +49,8 @@ if __name__ == '__main__':
     ]
 
     layout = [
-         [sg.Frame("Arquivos Excel", layout_arquivos_excel, size=(500, 160), title_location=sg.TITLE_LOCATION_TOP),],
-         [sg.Frame("Veiga & Postal", layout_botoes, size=(500, 100), title_location=sg.TITLE_LOCATION_TOP)]]
+         [sg.Frame("Arquivos Excel", layout_arquivos_excel, size=(520, 160), title_location=sg.TITLE_LOCATION_TOP),],
+         [sg.Frame("Veiga & Postal", layout_botoes, size=(520, 100), title_location=sg.TITLE_LOCATION_TOP)]]
 
     window = sg.Window("Gera Planilha Entrada/Saída para Domínio", layout, margins=(2, 2), finalize=True)
     window['-COMBO-'].update('Banco Itaú - 21')
@@ -55,7 +60,8 @@ if __name__ == '__main__':
     hora = datetime.now().hour
     minuto = datetime.now().minute
 
-    def run(window, input_excel_cliente, banco):
+
+    def run(window, input_excel_cliente, banco, servico):
 
         dados_cliente, status, tipo = open_lista_dados(input_excel_cliente, banco)
         numero_banco_2 = banco.split(' -')
@@ -65,7 +71,9 @@ if __name__ == '__main__':
         coluna1_str = (str(coluna1))
         razao = coluna1_str.split()
 
+
         nomeRelatorio = f'{razao[0]} {tipo}-{numero_banco_2[0]} {mes}-{ano} ás ({hora}.{minuto})'
+
         if status == 'ok':
             for linha_cliente in dados_cliente.itertuples():
                 index = linha_cliente[0]
@@ -73,20 +81,66 @@ if __name__ == '__main__':
                 data_vencimento = linha_cliente[2]
                 cnpj = linha_cliente[3]
                 numero_nota = linha_cliente[4]
-                if tipo == 'Entrada':
+                '''if tipo == 'Entrada':
                     numero_nota = int(numero_nota)
                 else:
-                    numero_nota = str(numero_nota)
+                    numero_nota = str(numero_nota)'''
                 valor_baixa = linha_cliente[5]
                 valor_total = linha_cliente[6]
                 juros = linha_cliente[7]
                 descontos = linha_cliente[8]
-
-                multa = 'nada'
+                #
+                multa = '0'
                 numero_banco = banco.split('- ')
                 cnpj_formatado = cnpj.replace('.', '').replace('/', '').replace('-', '')
+                #
+                if tipo == 'Saída':
+                    if servico is True:
+                        tipo_float = isinstance(numero_nota, float)
+                        tipo_int = isinstance(numero_nota, int)
 
-                escreve_relatorio_csv(f'{numero_nota};{cnpj_formatado};{data_vencimento};{data_baixa};{str(valor_total).replace(".",",")};{str(juros).replace(".",",")};{str(multa).replace(".",",")};{str(descontos).replace(".",",")};{numero_banco[1]}', nome=nomeRelatorio)
+                        nomeRelatorio = f'{razao[0]} {tipo} (Notas de Serviços) {numero_banco_2[0]} {mes}-{ano} ás ({hora}.{minuto})'
+                        if tipo_float is True or tipo_int is True:
+                            numero_nota_int = int(numero_nota)
+
+                            if numero_nota_int <= 10000:
+                                escreve_relatorio_csv(f'{numero_nota_int};{cnpj_formatado};{data_vencimento};{data_baixa};{str(valor_total).replace(".", ",")};{str(juros).replace(".", ",")};{str(multa).replace(".", ",")};{str(descontos).replace(".", ",")};{numero_banco[1]}',nome=nomeRelatorio)
+                        else:
+                            if numero_nota.isdigit():
+                                num_nota_int = int(numero_nota)
+                                if num_nota_int <= 10000:
+                                    escreve_relatorio_csv(f'{num_nota_int};{cnpj_formatado};{data_vencimento};{data_baixa};{str(valor_total).replace(".", ",")};{str(juros).replace(".", ",")};{str(multa).replace(".", ",")};{str(descontos).replace(".", ",")};{numero_banco[1]}',nome=nomeRelatorio)
+                            else:
+                                nomeRelatorio = f'{razao[0]} {tipo} (Notas de Serviços) {numero_banco_2[0]} {mes}-{ano} ás ({hora}.{minuto}) AUXILIAR'
+                                escreve_relatorio_csv(f'{str(numero_nota)};{cnpj_formatado};{data_vencimento};{data_baixa};{str(valor_total).replace(".", ",")};{str(juros).replace(".", ",")};{str(multa).replace(".", ",")};{str(descontos).replace(".", ",")};{numero_banco[1]}',nome=nomeRelatorio)
+                    else:
+                        tipo_float = isinstance(numero_nota, float)
+                        tipo_int = isinstance(numero_nota, int)
+                        nomeRelatorio = f'{razao[0]} {tipo}-{numero_banco_2[0]} {mes}-{ano} ás ({hora}.{minuto})'
+
+                        if tipo_float is True or tipo_int is True:
+                            numero_nota_int = int(numero_nota)
+
+                            if numero_nota_int >= 10000:
+                                escreve_relatorio_csv(
+                                    f'{numero_nota_int};{cnpj_formatado};{data_vencimento};{data_baixa};{str(valor_total).replace(".", ",")};{str(juros).replace(".", ",")};{str(multa).replace(".", ",")};{str(descontos).replace(".", ",")};{numero_banco[1]}',
+                                    nome=nomeRelatorio)
+                        else:
+                            if numero_nota.isdigit():
+                                num_nota_int2 = int(numero_nota)
+
+                                if num_nota_int2 >= 10000:
+                                    escreve_relatorio_csv(f'{num_nota_int2};{cnpj_formatado};{data_vencimento};{data_baixa};{str(valor_total).replace(".", ",")};{str(juros).replace(".", ",")};{str(multa).replace(".", ",")};{str(descontos).replace(".", ",")};{numero_banco[1]}',nome=nomeRelatorio)
+                            else:
+                                nomeRelatorio = f'{razao[0]} {tipo}-{numero_banco_2[0]} {mes}-{ano} ás ({hora}.{minuto}) AUXILIAR'
+                                escreve_relatorio_csv(
+                                    f'{str(numero_nota)};{cnpj_formatado};{data_vencimento};{data_baixa};{str(valor_total).replace(".", ",")};{str(juros).replace(".", ",")};{str(multa).replace(".", ",")};{str(descontos).replace(".", ",")};{numero_banco[1]}',
+                                    nome=nomeRelatorio)
+                                ####
+
+                elif tipo == 'Entrada':
+                    escreve_relatorio_csv(f'{numero_nota};{cnpj_formatado};{data_vencimento};{data_baixa};{str(valor_total).replace(".", ",")};{str(juros).replace(".", ",")};{str(multa).replace(".", ",")};{str(descontos).replace(".", ",")};{numero_banco[1]}',nome=nomeRelatorio)
+    #
             escreve_header_csv('Número da Nota;'
                                'CPF/CNPJ do Cliente;'
                                'Data de Vencimento da Parcela;'
@@ -98,12 +152,18 @@ if __name__ == '__main__':
                                'Código da Conta Banco/Caixa', nome=nomeRelatorio)
 
             alert(text=f'Relatorio concluido')
+            ####
+
 
             window['-INICIAR-'].update(disabled=False)
         else:
             return
 
+
+
+
     def open_lista_dados(input_excel_cliente, banco):
+
         if banco == 'Banco Itaú - 21':
             banco = 'BANCO ITAÚ S/A'
 
@@ -120,7 +180,9 @@ if __name__ == '__main__':
                 #ENTRADa
                 arquivo_cliente_entrada = pd.read_excel(input_excel_cliente, skiprows=range(0, 4))
                 arquivo_cliente_filtrado_entrada = arquivo_cliente_entrada['Nome Conta Banco Baixa'] == banco
-                dados_cliente_entrada = arquivo_cliente_entrada[arquivo_cliente_filtrado_entrada].drop(
+
+
+                dados_cliente_entrada=arquivo_cliente_entrada[arquivo_cliente_filtrado_entrada].drop(
                     columns=['Nome Conta Banco Baixa', 'Emissão', 'Sacado', 'Complementos Histórico',
                              'Compl. Livre Histórico', 'Número da parcela'])
 
@@ -167,11 +229,14 @@ if __name__ == '__main__':
 
     while True:
         event, values = window.read()
+
         try:
             input_excel_cliente = values['-input_excel_cliente-']
             entrada = values['-entrada-']
             saida = values['-saida-']
             banco = values['-COMBO-']
+            servico = values['-CHECKBOX-']
+
         except:
             input_excel_cliente = 'Desktop'
 
@@ -183,7 +248,7 @@ if __name__ == '__main__':
                 alert(text=f'Por favor selecione uma planilha do Cliente.')
             else:
                 window['-INICIAR-'].update(disabled=True)
-                run(window, input_excel_cliente, banco)
+                run(window, input_excel_cliente, banco, servico)
         if event == '-RELATORIO-':
             try:
                 os.startfile('T:\# Projeto Robô\Carolina')

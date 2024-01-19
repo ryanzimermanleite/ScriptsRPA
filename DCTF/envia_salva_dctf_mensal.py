@@ -22,12 +22,21 @@ def run():
                 excluir()
                 renomeia_arquivo_pendencia()
             elif status == 'ok':
-                transmitir()
-                salvar_recibo()
-                salvar_pdf()
-                renomeia_arquivo()
-                excluir()
-                move_arquivo_RFB()
+                status = transmitir()
+                if status == 'ok':
+                    salvar_recibo()
+                    salvar_pdf()
+                    renomeia_arquivo()
+                    excluir()
+                    move_arquivo_RFB()
+                elif status != 'ok':
+                    p.press('enter')
+                    time.sleep(0.5)
+                    p.press('esc')
+                    time.sleep(0.5)
+                    p.press('esc')
+                    excluir()
+                    move_arquivo_RFB_erro(status)
         elif status_gravar == 'Sem Declaração':
             print('Fim da execução!')
             break
@@ -87,7 +96,8 @@ def imprimir_pendencia():
 
     p.hotkey('alt', 'i')
 
-    while not _find_img('salvar.png', conf=0.9):
+
+    while not _find_img('salvar_imagem.png', conf=0.9):
         time.sleep(1)
     os.makedirs(r'{}\{}'.format(e_dir, 'Recibos'), exist_ok=True)
     p.write('Pendencia')
@@ -134,11 +144,38 @@ def transmitir():
 
     while not _find_img('transmitido_sucesso.png', conf=0.9):
         time.sleep(1)
+        if _find_img('erro_2_mes.png', conf=0.9):
+            return 'DCTF a partir do 2º mês'
+        elif _find_img('erro_cadastro_rfb.png', conf=0.9):
+            return 'CPF/CNPJ diferente no cadastro da RFB'
+        elif _find_img('erro_dctf_ativa.png', conf=0.9):
+            return 'DCTF ativa referente a PA anterior do mesmo ano-calendário'
+        elif _find_img('erro_nao_aplica.png', conf=0.9):
+            return 'Opção Não se aplica no campo Critério de Reconhecimento...'
+        elif _find_img('erro_procuracao.png', conf=0.9):
+            return 'Não existe procuração eletrônica'
+        elif _find_img('erro_real_estimativa.png', conf=0.9):
+            return 'Tributação igual a Real/Estimativa'
+        elif _find_img('erro_irpj.png', conf=0.9):
+            return 'Tributação igual a Isenta do IRPJ'
+        elif _find_img('erro_presumido.png', conf=0.9):
+            return 'Tributação igual a Presumido'
+        elif _find_img('erro_certificado.png', conf=0.9):
+            return 'Certificado Digital Expirou'
+        elif _find_img('erro_certificado_cancelado.png', conf=0.9):
+            return 'Certificado Digital Foi Cancelado'
+        elif _find_img('erro_ja_consta.png', conf=0.9):
+            return 'Já Consta uma DCTF Normal'
+        elif _find_img('erro_dispensadas.png', conf=0.9):
+            return 'Naturezas Jurídicas Estão Dispensadas da Apresentação da DCTF'
+        
+        time.sleep(1)
     time.sleep(1)
     p.press('enter')
     time.sleep(0.5)
+    
     p.press('esc', presses=2, interval=0.3)
-
+    return 'ok'
 def assinar():
     while not _find_img('assinar.png', conf=0.9):
         time.sleep(1)
@@ -165,7 +202,7 @@ def salvar_recibo():
     p.hotkey('alt', 'o')
 
 def salvar_pdf():
-    while not _find_img('salvar.png', conf=0.9):
+    while not _find_img('salvar_imagem.png', conf=0.9):
         time.sleep(1)
     time.sleep(1)
     os.makedirs(r'{}\{}'.format(e_dir, 'Recibos'), exist_ok=True)
@@ -186,6 +223,7 @@ def salvar_pdf():
     p.press('esc', presses=2, interval=0.3)
 
 def renomeia_arquivo():
+    
     arq_nome = 'Arquivo.pdf'
     pasta = 'V:\Setor Robô\Scripts Python\DCTF Mensal\Envia DCTF e Salvar Recibo\execução\Recibos'
     with fitz.open(pasta + '\\' + arq_nome) as pdf:
@@ -245,6 +283,18 @@ def move_arquivo_RFB():
 
     for pasta in allfiles:
         shutil.move(origem + pasta, destino + pasta)
+
+def move_arquivo_RFB_erro(status):
+    origem = 'C:\Arquivos de Programas RFB\DCTF Mensal 3.6\Declaracoes Gravadas\\'
+    destino = 'V:\Setor Robô\Scripts Python\DCTF Mensal\Envia DCTF e Salvar Recibo\execução\Pastas RFB\\'
+
+    allfiles = os.listdir(origem)
+
+    for pasta in allfiles:
+        shutil.move(origem + pasta, destino + pasta)
+
+    pasta = pasta.split("-")
+    _escreve_relatorio_csv(f'{pasta[0]};{status}', nome='Relatorio Envia DCTF')
 
 if __name__ == '__main__':
     run()
